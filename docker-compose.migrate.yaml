@@ -1,0 +1,35 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:8.3.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: strong_password
+      MYSQL_DATABASE: example_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mysql-config:/etc/mysql/conf.d
+    networks:
+      - default-network
+  node-app-migrate:
+    container_name: node-app-migrate
+    build:
+      context: .
+      dockerfile: ./migrate.Dockerfile
+    environment:
+      - DATABASE_URL=mysql://root:strong_password@db:3306/example_db
+    depends_on:
+      - db
+    command: ./wait-for.sh db:3306 -- npx prisma migrate dev --name init # npx prisma migrate reset --force  # npx prisma db push
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    networks:
+      - default-network
+volumes:
+  db_data:
+  node_modules:
+networks:
+  default-network:
