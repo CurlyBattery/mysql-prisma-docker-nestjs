@@ -1,17 +1,13 @@
-FROM node:alpine As development
+FROM node:22-alpine AS development
 
 RUN apk add --no-cache openssl
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY  package.json ./
-COPY yarn.lock ./
+COPY package.json yarn.lock prisma wait-for.sh ./
 
-COPY /prisma ./prisma
-
-COPY wait-for.sh ./
 RUN chmod +x ./wait-for.sh
 
-RUN yarn install
+RUN yarn
 
 RUN npx prisma generate
