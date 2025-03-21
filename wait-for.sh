@@ -2,7 +2,7 @@
 
 # original script: https://github.com/eficode/wait-for/blob/master/wait-for
 
-TIMEOUT=30
+TIMEOUT=25
 QUIET=0
 
 echoerr() {
