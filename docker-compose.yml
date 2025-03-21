@@ -1,41 +1,38 @@
-version: '3.9'
+version: '3.5'
 services:
   mysql:
     image: mysql:8.3.0
     container_name: mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - PRISMA_MIGRATION_NAME=${PRISMA_MIGRATION_NAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      PRISMA_MIGRATION_NAME: ${PRISMA_MIGRATION_NAME}
     ports:
-      - "3307:3306"
+      - 3307:3306
     volumes:
       - db_data:/var/lib/mysql
       - ./mysql-config:/etc/mysql/conf.d
     networks:
-      - default-network
+      - network_for_prisma
   app:
-    container_name: app
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
       target: development
-    environment:
-      - DATABASE_URL=mysql://root:${MYSQL_ROOT_PASSWORD}@mysql:${MYSQL_PORT}/${MYSQL_DATABASE}
+    container_name: app
     env_file:
-      - ./.env
+      - .env
+    command: sh ./wait-for.sh mysql:${MYSQL_PORT} -- yarn start:dev
     depends_on:
       - mysql
-    command: sh ./wait-for.sh mysql:${MYSQL_PORT} -- npm run start:dev
-    volumes:
-      - .:/app
-      - node_modules:/app/node_modules
     ports:
       - '3000:3000'
+    volumes:
+      - .:/usr/src/app
     networks:
-      - default-network
+      - network_for_prisma
+
 volumes:
   db_data:
-  node_modules:
 networks:
-  default-network:
+  network_for_prisma:

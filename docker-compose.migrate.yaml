@@ -4,8 +4,9 @@ services:
     image: mysql:8.3.0
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: asdfjkl
-      MYSQL_DATABASE: database_for_prisma
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      PRISMA_MIGRATION_NAME: ${PRISMA_MIGRATION_NAME}
     ports:
       - 3307:3306
     volumes:
@@ -13,14 +14,14 @@ services:
       - ./mysql-config:/etc/mysql/conf.d
     networks:
       - network_for_prisma
-  prisma_app:
+  app:
     build:
       context: .
       dockerfile: migrate.Dockerfile
-    container_name: prisma_app
+    container_name: app
     env_file:
       - .env
-    command: ./wait-for.sh mysql:3306 -- npx prisma migrate dev --name init
+    command: ./wait-for.sh mysql:3306 -- npx prisma migrate dev --name ${PRISMA_MIGRATION_NAME}
     depends_on:
       - mysql
     ports:
