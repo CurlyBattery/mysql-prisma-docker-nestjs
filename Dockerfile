@@ -12,6 +12,8 @@ RUN yarn build
 
 COPY . .
 
+CMD ["sh", "-c", "yarn db:deploy && yarn start:dev"]
+
 FROM node:22-alpine AS production
 
 ARG NODE_ENV=production
