@@ -2,17 +2,13 @@ FROM node:22-alpine AS development
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock prisma ./
 
 RUN yarn
 
 COPY . .
 
 RUN yarn build
-
-COPY . .
-
-CMD ["sh", "-c", "yarn db:deploy && yarn start:dev"]
 
 FROM node:22-alpine AS production
 
